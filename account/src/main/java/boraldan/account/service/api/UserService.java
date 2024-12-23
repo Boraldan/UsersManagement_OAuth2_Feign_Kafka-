@@ -24,4 +24,5 @@ public interface UserService {
     String downloadPhoto(MultipartFile photo);
     CompletableFuture<ResponseEntity<User>> updatePhoto(UUID userId, MultipartFile photo);
     User updateUserFields(User user, CreatUserDto creatUserDto);
+    ResponseEntity<?> deleteByIdKafka(String username);
 }

@@ -5,11 +5,14 @@ import boraldan.account.service.api.FileStorageService;
 import boraldan.account.service.api.UserService;
 
 import boraldan.users.domen.dto.CreatUserDto;
+import boraldan.users.domen.dto.UserKeycloakDto;
 import boraldan.users.domen.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,8 @@ public class UserService_v1 implements UserService {
     private String defaultPhotoPath;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final KafkaTemplate<String, UserKeycloakDto> kafkaTemplate;
+    private final ModelMapper modelMapper;
 
     /**
      * Получает список всех пользователей из базы данных.
@@ -72,6 +77,7 @@ public class UserService_v1 implements UserService {
         return userRepository.save(user);
     }
 
+
     /**
      * Удаляет пользователя по его идентификатору.
      *
@@ -81,6 +87,24 @@ public class UserService_v1 implements UserService {
     public void deleteById(UUID id) {
         userRepository.deleteById(id);
     }
+
+    @Transactional
+    public ResponseEntity<?> deleteByIdKafka(String username) {
+        Optional<User> optionalUser = userRepository.findByUsernameIgnoreCase(username);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = optionalUser.get();
+
+        kafkaTemplate.send("delete-user-topic", maptUserToUserKeycloakDto(user));
+
+        userRepository.deleteById(user.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
+
 
     /**
      * Получает пользователя по имени пользователя, игнорируя регистр.
@@ -155,5 +179,9 @@ public class UserService_v1 implements UserService {
             user.setPhoneNumber(creatUserDto.getPhoneNumber());
         }
         return user;
+    }
+
+    private UserKeycloakDto maptUserToUserKeycloakDto(User user) {
+        return modelMapper.map(user, UserKeycloakDto.class);
     }
 }

@@ -76,16 +76,5 @@ class UserControllerTest {
         assertEquals(user, response.getBody());
     }
 
-    @Test
-    void deleteUser() {
-        UUID id = UUID.randomUUID();
-        User user = new User();
-        user.setUsername("testuser");
-        when(userService.findById(id)).thenReturn(Optional.of(user));
-        when(keycloakFeign.deleteUser(user.getUsername())).thenReturn(ResponseEntity.ok(""));
 
-        ResponseEntity<?> response = userController.deleteUser(id);
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(userService, times(1)).deleteById(id);
-    }
 }

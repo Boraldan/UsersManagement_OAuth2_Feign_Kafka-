@@ -23,8 +23,8 @@ public class KeycloakConfig {
                 .serverUrl("http://localhost:8079/")
                 .realm("master")
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .clientId("admin-telros")
-                .clientSecret("6ayDdqYZKNSGIoPxOyHGh85XJUtx7zSF")
+                .clientId("keycloak-client")
+                .clientSecret("uGxnsyYUBLtsc7Kmn2Rkvlvrv3U4MTCI")
                 .build();
     }
 }

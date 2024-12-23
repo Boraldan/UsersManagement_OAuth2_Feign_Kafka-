@@ -36,6 +36,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(configurer -> configurer
+//                        .anyRequest().permitAll()
                                 .requestMatchers("/api/account/creat").permitAll()
                                 .requestMatchers("/api/account/**").hasAuthority("SCOPE_account_scope")
                                 .requestMatchers("/api/admin/**").hasAuthority("SCOPE_keycloak_scope")
@@ -44,6 +45,7 @@ public class SecurityConfig {
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(CsrfConfigurer::disable)
                 .oauth2Client(Customizer.withDefaults())
+//                .oauth2Login(Customizer.withDefaults())
                 .oauth2ResourceServer(customizer -> customizer.jwt(Customizer.withDefaults()))
                 .build();
     }

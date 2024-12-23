@@ -9,6 +9,7 @@ import boraldan.users.domen.dto.UserKeycloakDto;
 import boraldan.users.domen.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.protocol.types.Field;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,7 +113,7 @@ public class UserController {
      * @param username имя пользователя.
      * @return ResponseEntity с найденным пользователем или 404, если не найден.
      */
-    @GetMapping("/{username}")
+    @GetMapping("/username/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         Optional<User> user = userService.findByUsernameIgnoreCase(username);
         return user.map(ResponseEntity::ok)
@@ -180,32 +181,34 @@ public class UserController {
     /**
      * Удаляет пользователя.
      *
-     * @param id идентификатор пользователя.
+     * @param username имя пользователя.
      * @return ResponseEntity без содержимого или сообщение об ошибке.
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-        Optional<User> optionalUser = userService.findById(id);
+    @DeleteMapping("/{username}")
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
+//        Optional<User> optionalUser = userService.findById(id);
+//
+//        if (optionalUser.isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        User user = optionalUser.get();
+//
+//        ResponseEntity<String> response = keycloakFeign.deleteUser(user.getUsername());
+//
+//        if (response.getStatusCode().is2xxSuccessful()) {
+//            userService.deleteById(id);
+//            return ResponseEntity.noContent().build();
+//        } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+//            userService.deleteById(id);
+//            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+//                    .body("User deleted locally but not found in Keycloak.");
+//        } else {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Failed to delete user in Keycloak: " + response.getBody());
+//        }
 
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        User user = optionalUser.get();
-
-        ResponseEntity<String> response = keycloakFeign.deleteUser(user.getUsername());
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            userService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            userService.deleteById(id);
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                    .body("User deleted locally but not found in Keycloak.");
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to delete user in Keycloak: " + response.getBody());
-        }
+        return userService.deleteByIdKafka(username);
     }
 
     /**

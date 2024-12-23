@@ -52,9 +52,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-    # Интервал обновление клиентом кэша реестра сервисов из сервера Eureka
     registry-fetch-interval-seconds: 30
-    # Интервал первой репликации информации
     initial-instance-info-replication-interval-seconds: 10
 
 

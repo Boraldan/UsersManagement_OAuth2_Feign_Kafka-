@@ -1,6 +1,7 @@
 package boraldan.keycloak.controller;
 
 
+import boraldan.keycloak.service.KafkaService;
 import boraldan.users.domen.dto.UserKeycloakDto;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AccountController {
     private final String realm = "master";
     private final Keycloak keycloak;
     private final ModelMapper modelMapper;
+    private final KafkaService kafkaService;
 
     /**
      * Получает список пользователей из Keycloak.
